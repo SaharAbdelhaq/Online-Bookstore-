@@ -51,9 +51,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ userId: user._id }, "SaharSecretKey", {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ userId: user._id }, "SaharSecretKey");
 
     return res.status(200).json({
       token,
@@ -63,6 +61,28 @@ exports.login = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       message: "Internal Server Error ",
+    });
+  }
+};
+
+exports.editUserInformation = async (req, res) => {
+  try {
+    const { userInformation } = req.body;
+    let user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found, cant do update",
+      });
+    }
+    user.username = userInformation.username;
+    user.password = userInformation.password;
+    await user.save();
+    return res.status(201).json({
+      message: "user information updated successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Internal Server Error",
     });
   }
 };
